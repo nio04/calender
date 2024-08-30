@@ -156,6 +156,9 @@ function vd($data) {
           // add the event but hide it for now
           day.insertAdjacentHTML("beforeend", setEventDetails(event.event))
         }
+      } else {
+        // remove clear event button
+        deleteEl('.event-clear-container')
       }
     })
 
@@ -199,6 +202,10 @@ function vd($data) {
 
     function input(question) {
       return prompt(question)
+    }
+
+    function deleteEl(element) {
+      document.querySelector(element).remove()
     }
 
     function getEventContents(target) {
