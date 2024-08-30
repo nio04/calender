@@ -21,7 +21,7 @@ function vd($data) {
   $firstDayTimestamp = mktime(0, 0, 0, $month, 1, $year);
   $firstDayOfWeek = date('N', $firstDayTimestamp);
 
-  $calenderHeader = date("d-m-Y");
+  $calenderHeader = date("d F, Y");
   $storeWeekDays = ['su', 'mo', 'tu',  'we', 'th', 'fr', 'sa'];
   $maxDay = date('t');
   $currentDay = date('j');
@@ -65,64 +65,82 @@ function vd($data) {
     <?php endfor ?>
   </div>
 
+  <div style="display: flex; justify-content: center; margin-top: 1rem" class="event-clear-container">
+    <button style="cursor: pointer; padding: .5rem 1rem; text-transform: capitalize;" class="clear-btn">clear all events</button>
+  </div>
+
   <script>
+    let targetScope;
+
     document.addEventListener("click", function(ev) {
-      if (!ev.target.closest(".day-container")) return
-      const target = ev.target.closest(".day-container");
+      // if (!(ev.target.closest(".day-container") || ev.target.closest(".event-clear-container"))) return
+
+      targetScope = ev.target
+
+      const target = check(".day-container");
       const dayContent = target?.querySelector(".day-item").textContent;
 
       // for setting an event
-      if (target.dataset.event === 'false') {
+      if (check(".day-container")?.dataset.event === 'false') {
         const eventDescription = prompt(`save event on day: ${dayContent}`);
 
         // if eventDescription is empty then simply return
-        if (eventDescription.trim().length < 1) return
+        if (eventDescription?.trim().length < 1 || eventDescription == null) return
 
         const event = {
           day: parseInt(dayContent),
           event: eventDescription
         };
 
-        // save event to local storage
-        const eventInString = JSON.stringify([event]);
-
         // before setting item to LS, check if there are existing conetent
-        const datas = localStorage.getItem("event-calender");
+        const datas = get("event-calender");
 
         if (!datas) {
-          // there were no data on localStorage
-          localStorage.setItem("event-calender", eventInString);
+          // there were no event data on localStorage
+          // save event to local storage
+          const eventInString = stringify([event]);
+
+          set("event-calender", eventInString);
+
+          reload()
         } else {
           // localStorage contain existing data
-          const eventCollectins = JSON.parse(datas);
+          const eventCollectins = parse(datas);
 
           eventCollectins.push(event);
 
           // set to localStorage
-          localStorage.setItem('event-calender', JSON.stringify(eventCollectins))
+          set('event-calender', stringify(eventCollectins))
 
-          // reload the page after setting the content in localStorage
-          location.reload()
+          reload()
         }
 
         target.dataset.event = "true";
       }
 
       // for displaying event
-      if (target.dataset.hasEvent === "true") {
+      if (check(".day-container")?.dataset.hasEvent === "true") {
         // take the event content from the hidden block
         const event = target.querySelector(".event-content").textContent;
-        alert(`${event}`)
+
+        show(`${event}`)
+      }
+
+      // clear event from local storage
+      if (check(".event-clear-container")) {
+        if (ask("you sure want to clear out all events?")) {
+          remove('event-calender')
+          reload()
+        }
       }
     })
 
     document.addEventListener("DOMContentLoaded", function() {
       // retrive the localStorage of event-calender 
-      const eventCollectins = localStorage.getItem("event-calender") ? JSON.parse(localStorage.getItem("event-calender")) : []
+      const eventCollectins = get("event-calender") ? parse(get("event-calender")) : []
 
       // if there are contents on localStorage then modify the daycontainer dataset
       if (eventCollectins.length > 0) {
-        console.log(eventCollectins)
 
         for (const event of eventCollectins) {
           const day = document.querySelector(`[data-day='${event.day}']`)
@@ -137,7 +155,45 @@ function vd($data) {
       }
     })
 
-    // miscs
+    // miscs : helper
+    function reload() {
+      location.reload()
+    }
+
+    function stringify(obj) {
+      return JSON.stringify(obj)
+    }
+
+    function parse(strings) {
+      return JSON.parse(strings)
+    }
+
+    function get(item) {
+      return localStorage.getItem(item)
+    }
+
+    function set(key, value) {
+      return localStorage.setItem(key, value);
+    }
+
+    function remove(key) {
+      localStorage.removeItem(key)
+    }
+
+    function show(content) {
+      alert(content)
+    }
+
+    function ask(content) {
+      return confirm(content)
+    }
+
+    function check(element) {
+      return targetScope.closest(element)
+    }
+
+
+
     // ev text loader: specify if certain day have an event or not
     function eventTextLoader() {
       return `<div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif; background-color: #e4e1e1; border-radius: 50%; padding: 6px;">ev</div>`
