@@ -81,15 +81,19 @@ function vd($data) {
       const dayContent = target?.querySelector(".day-item").textContent;
 
       // for setting an event
-      if (check(".day-container")?.dataset.event === 'false') {
-        const eventDescription = prompt(`save event on day: ${dayContent}`);
+      if (check(".day-container")) {
+        const totalContents = hasEvents(target) && getEventContents(target).split(",")
+
+        const contents = inputTemplate(target, dayContent, totalContents);
+
+        const eventDescription = input(contents);
 
         // if eventDescription is empty then simply return
         if (eventDescription?.trim().length < 1 || eventDescription == null) return
 
         const event = {
           day: parseInt(dayContent),
-          event: eventDescription
+          event: [eventDescription]
         };
 
         // before setting item to LS, check if there are existing conetent
@@ -106,8 +110,17 @@ function vd($data) {
         } else {
           // localStorage contain existing data
           const eventCollectins = parse(datas);
+          let eventExist = false;
 
-          eventCollectins.push(event);
+          // check if LS have the current date saved already
+          for (const collection of eventCollectins) {
+            if (collection.day === event.day) {
+              collection.event = [...collection.event, eventDescription];
+              eventExist = true;
+            }
+          }
+
+          eventExist || eventCollectins.push(event);
 
           // set to localStorage
           set('event-calender', stringify(eventCollectins))
@@ -119,19 +132,10 @@ function vd($data) {
       }
 
       // for displaying event
-      if (check(".day-container")?.dataset.hasEvent === "true") {
-        // take the event content from the hidden block
-        const event = target.querySelector(".event-content").textContent;
-
-        show(`${event}`)
-      }
 
       // clear event from local storage
       if (check(".event-clear-container")) {
-        if (ask("you sure want to clear out all events?")) {
-          remove('event-calender')
-          reload()
-        }
+        ask("you sure want to clear out all events?") && (remove('event-calender') && reload())
       }
     })
 
@@ -148,7 +152,7 @@ function vd($data) {
           day.dataset.hasEvent = "true";
 
           // add a dynamic content specifying the specific day may or may not have a event
-          day.insertAdjacentHTML("beforeend", eventTextLoader())
+          day.insertAdjacentHTML("beforeend", eventTextLoader(day, event.event.length))
           // add the event but hide it for now
           day.insertAdjacentHTML("beforeend", setEventDetails(event.event))
         }
@@ -178,6 +182,7 @@ function vd($data) {
 
     function remove(key) {
       localStorage.removeItem(key)
+      return true;
     }
 
     function show(content) {
@@ -192,11 +197,33 @@ function vd($data) {
       return targetScope.closest(element)
     }
 
+    function input(question) {
+      return prompt(question)
+    }
 
+    function getEventContents(target) {
+      return target.querySelector(".event-content").textContent
+    }
+
+    function inputTemplate(target, dayContent, totalContents) {
+      return `
+> ${hasEvents(target) ? `day ${dayContent}: has following ${totalContents.length} events:` : `day ${dayContent}: has no events`}
+${totalContents ? totalContents.map(content=> `   * ${content}.`).join("\n") : ""}
+> save event on day: ${dayContent}:
+        `;
+    }
+
+    // 
+    function hasEvents(target) {
+      if (check(".day-container")?.dataset.hasEvent === "true") {
+        // take the event content from the hidden block
+        return target.querySelector(".event-content");
+      }
+    }
 
     // ev text loader: specify if certain day have an event or not
-    function eventTextLoader() {
-      return `<div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif; background-color: #e4e1e1; border-radius: 50%; padding: 6px;">ev</div>`
+    function eventTextLoader(day, count) {
+      return `<div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif; background-color: #e4e1e1; border-radius: 1rem; padding: 6px;">ev ${count}</div>`
     }
 
     function setEventDetails(event) {
