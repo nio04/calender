@@ -36,7 +36,7 @@ function vd($data) {
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
     <button style="padding: .5rem 1rem; text-transform: uppercase;cursor:pointer;">prev</button>
     <p>Today is: <?= $calenderHeader ?></p>
-    <button style="padding: .5rem 1rem;cursor:pointer;">next</button>
+    <button style="padding: .5rem 1rem; text-transform: uppercase; cursor:pointer;">next</button>
   </div>
 
   <!-- display week days name -->
