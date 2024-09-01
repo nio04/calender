@@ -16,8 +16,9 @@ function vd($data) {
 
 <body style="padding-left: 1rem; padding-right: 1rem;">
   <?php
-  $year = date('Y');
-  $month = date('m');
+  $month = isset($_GET['month']) ? (int) $_GET['month'] : date('m');
+  $year = isset($_GET['year']) ? (int) $_GET['year'] : date('Y');
+  $navMonth = date("M", mktime(0, 0, 0, $month, 1, $year));
   $firstDayTimestamp = mktime(0, 0, 0, $month, 1, $year);
   $firstDayOfWeek = date('w', $firstDayTimestamp);
 
@@ -35,7 +36,8 @@ function vd($data) {
 
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
     <button id="prev" style="padding: .5rem 1rem; text-transform: uppercase;cursor:pointer;" data-month="<?= $month ?>" data-year="<?= $year ?>">prev</button>
-    <p>Today is: <?= $calenderHeader ?></p>
+    <p style="margin-right: auto; margin-left: 2rem;">Today is: <?= $calenderHeader ?></p>
+    <p style="margin-left: auto; margin-right: 2rem;">Month: <?= $navMonth ?>, Year: <?= $year ?></p>
     <button id="next" style="padding: .5rem 1rem; text-transform: uppercase; cursor:pointer;" data-month="<?= $month ?>" data-year="<?= $year ?>">next</button>
   </div>
 
@@ -97,6 +99,8 @@ function vd($data) {
 
         const event = {
           day: parseInt(dayContent),
+          month: document.querySelector("#prev").dataset.month,
+          year: document.querySelector("#prev").dataset.year,
           event: [eventDescription]
         };
 
@@ -143,14 +147,29 @@ function vd($data) {
       if (check("#prev")) {
         month = ev.target.dataset.month
         year = ev.target.dataset.year
-        console.log(month, year)
-        // window.location.href = "?month=0&year=2024";
+
+        month--;
+
+        if (month < 1) {
+          month = 12;
+          year--;
+        }
+
+        window.location.href = `?month=${month}&year=${year}`;
       }
+
       if (check("#next")) {
         month = ev.target.dataset.month
         year = ev.target.dataset.year
-        console.log(month, year)
-        // window.location.href = "?month=0&year=2024";
+
+        month++;
+
+        if (month > 12) {
+          month = 1;
+          year++;
+        }
+
+        window.location.href = `?month=${month}&year=${year}`;
       }
     })
 
