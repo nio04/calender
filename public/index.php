@@ -19,7 +19,7 @@ function vd($data) {
   $year = date('Y');
   $month = date('m');
   $firstDayTimestamp = mktime(0, 0, 0, $month, 1, $year);
-  $firstDayOfWeek = date('N', $firstDayTimestamp);
+  $firstDayOfWeek = date('w', $firstDayTimestamp);
 
   $calenderHeader = date("d F, Y");
   $storeWeekDays = ['su', 'mo', 'tu',  'we', 'th', 'fr', 'sa'];
