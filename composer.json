@@ -4,7 +4,8 @@
         "psr-4": {
             "App\\Controllers\\": "src/app/controllers/",
             "App\\Core\\": "src/app/core/",
-            "Framework\\": "Framework/"
+            "Framework\\": "Framework/",
+            "App\\Traits\\": "src/app/traits/"
         }
     },
     "authors": [

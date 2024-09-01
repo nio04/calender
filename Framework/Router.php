@@ -2,7 +2,9 @@
 
 namespace Framework;
 
+use App\Controllers\FormController;
 use App\Controllers\HomeController;
+use App\Controllers\NamesController;
 
 /**
  * The `Router` class is responsible for handling and dispatching HTTP requests to the appropriate
@@ -42,6 +44,16 @@ class Router {
     $this->routes['/'] = [
       'controller' => HomeController::class,
       'action' => 'index',
+      'httpMethod' => 'get'
+    ];
+    $this->routes['/form-submit'] = [
+      'controller' => FormController::class,
+      'action' => 'getFormData',
+      'httpMethod' => 'post'
+    ];
+    $this->routes['/fetch-all'] = [
+      'controller' => NamesController::class,
+      'action' => 'getAllNames',
       'httpMethod' => 'get'
     ];
   }
