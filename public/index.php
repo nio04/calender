@@ -12,6 +12,12 @@ function vd($data) {
 <html>
 <header>
   <title>calender</title>
+
+  <style>
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </header>
 
 <body style="padding-left: 1rem; padding-right: 1rem;">
@@ -44,13 +50,17 @@ function vd($data) {
   </div>
 
   <!-- display week days name -->
-  <div style="display:grid; grid-template-columns: repeat(7,1fr); gap:2rem; margin-bottom: 2rem;">
-    <?php foreach ($storeWeekDays as $weekDay): ?>
-      <div style="text-transform: uppercase;"><?= $weekDay ?></div>
+  <div style="display:grid; grid-template-columns: repeat(7,1fr); gap:2rem; margin-bottom: 2rem; border: 2px dotted blue; padding: .5rem">
+    <?php foreach ($storeWeekDays as $key => $weekDay): ?>
+      <?php if ($key === count($storeWeekDays) - 1): ?>
+        <div style="text-transform: uppercase;"><?= $weekDay ?></div>
+      <?php else: ?>
+        <div style="text-transform: uppercase; border-right: 2px dotted green;"><?= $weekDay ?></div>
+      <?php endif ?>
     <?php endforeach ?>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem;">
+  <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1rem; border: 2px dotted blue; padding:.5rem;">
 
     <!-- when the $i is divisble by 7 break the row to a new line -->
     <?php $breakLine = 8 ?>
@@ -58,20 +68,23 @@ function vd($data) {
 
       <?php if ($i === 1): ?>
         <!-- set grid col start only for the first day of the month -->
-        <div style="display: flex; align-items:center; justify-content:space-between; padding:1rem; grid-column: <?= $firstDayOfWeek + 1 ?>; cursor:pointer" class="day-container" data-event="false" data-day="<?= $i ?>" data-has-event="false">
+        <div style="display: flex; align-items:center; justify-content:space-between; padding:1rem; grid-column: <?= $firstDayOfWeek + 1 ?>; cursor:pointer; border: 2px dotted blue;" class="day-container" data-event="false" data-day="<?= $i ?>" data-has-event="false">
           <div style="" class="day-item"><?= $i ?></div>
         </div>
       <?php else: ?>
-        <div style="display: flex; align-items:center; justify-content:space-between; cursor:pointer; padding:1rem" class="day-container" data-event="false" data-day="<?= $i ?>" data-has-event="false">
+        <div style="display: flex; align-items:center; justify-content:space-between; cursor:pointer; padding:1rem; border: 2px dotted blue;" class="day-container" data-event="false" data-day="<?= $i ?>" data-has-event="false">
           <div style="" class="day-item"><?= $i  ?></div>
         </div>
       <?php endif ?>
     <?php endfor ?>
   </div>
 
-  <div style="display: flex; justify-content: center; margin-top: 1rem" class="event-clear-container">
+  <div style="display: flex; justify-content: space-around; margin-top: 1rem" class="event-clear-container">
     <button style="cursor: pointer; padding: .5rem 1rem; text-transform: capitalize;" class="clear-btn">clear all events</button>
+    <button style="cursor: pointer; padding: .5rem 1rem; text-transform: capitalize;" class="clear-event-btn">clear event</button>
   </div>
+
+  <ul class="show-all-events" style="display: grid; grid-template-columns: repeat(5,1fr); gap: .5rem; padding: 2rem;"></ul>
 
   <script>
     let targetScope;
@@ -88,6 +101,8 @@ function vd($data) {
       const prevBtn = document.querySelector("#prev")
       const nextBtn = document.querySelector("#next")
 
+      console.log(ev)
+
       // for setting an event
       if (check(".day-container")) {
         const totalContents = hasEvents(target) && getEventContents(target).split(",")
@@ -100,10 +115,14 @@ function vd($data) {
         if (eventDescription?.trim().length < 1 || eventDescription == null) return
 
         const event = {
+          id: (new Date()).getTime(),
           day: parseInt(dayContent),
           month: parseInt(document.querySelector("#prev").dataset.month),
           year: parseInt(document.querySelector("#prev").dataset.year),
-          event: [eventDescription]
+          event: [{
+            id: (new Date()).getTime(),
+            event: eventDescription
+          }]
         };
 
         // before setting item to LS, check if there are existing conetent
@@ -124,8 +143,13 @@ function vd($data) {
 
           // check if LS have the current date saved already
           for (const collection of eventCollectins) {
+            if (collection === null) continue
+
             if (collection.day === event.day) {
-              collection.event = [...collection.event, eventDescription];
+              collection.event = [...collection.event, {
+                id: (new Date()).getTime(),
+                event: eventDescription
+              }];
               eventExist = true;
             }
           }
@@ -142,8 +166,53 @@ function vd($data) {
       }
 
       // clear event from local storage
-      if (check(".event-clear-container")) {
+      if (check(".clear-btn")) {
         ask("you sure want to clear out all events?") && (remove('event-calender') && reload())
+      }
+
+      // click single event delete
+      if (check(".clear-event-btn")) {
+        document.querySelector(".show-all-events").classList.toggle("hidden")
+      }
+
+      // delete single event
+      if (check("#delete-event")) {
+        // delete from LS & refresh the browser
+        const id = parseInt(ev.target.dataset.id);
+
+        // get from ls
+        const eventCollectins = JSON.parse(localStorage.getItem('event-calender'));
+
+        // filter from parsed ls
+        const filterEvent = eventCollectins.filter(event => event !== null).map(event => {
+
+          if (event.event.length === 1) {
+            if (event.id === id) {
+              delete event;
+            } else {
+              return event
+            }
+          } else {
+            // handle when multple event within same day
+            return event.event.map((ev, idx) => {
+              // console.log(event)
+              if (ev.id === id) {
+                return event.event.splice(idx, 1);
+                // delete ev;
+                // console.log(event)
+                // return null;
+              }
+              // return event
+            })
+          }
+        })
+
+        // console.log(filterEvent[0] === undefined, filterEvent, filterEvent.length)
+
+        // set back to ls
+        localStorage.setItem("event-calender", filterEvent[0] === undefined ? [] : JSON.stringify(filterEvent))
+
+        reload()
       }
 
       // make the current date home button
@@ -192,14 +261,42 @@ function vd($data) {
 
       // if there are contents on localStorage then modify the daycontainer dataset
       if (eventCollectins.length > 0) {
+        const clearEventContainer = document.querySelector(".show-all-events");
         let curr_month = parseInt(document.querySelector("#prev").dataset.month);
         let curr_year = parseInt(document.querySelector("#prev").dataset.year);
         let navMonth = parseInt(document.querySelector("#navigate").dataset.navMonth)
         let navYear = parseInt(document.querySelector("#navigate").dataset.navYear)
 
-        console.log(navMonth, curr_month)
-
         for (const event of eventCollectins) {
+
+          if (event === null) continue
+
+          function strcture(day, month, year, eventTitle, id) {
+            return `
+          <li style="display:flex; border:2px solid black; padding: .5rem 1rem;">
+            <div style="margin-left: auto;">
+                <p>day: ${day}</p>
+                <p>month: ${month}</p>
+                <p>year: ${year}</p>
+                <p>content: ${eventTitle}</p>
+            </div>
+            <button id="delete-event" style="align-self: center; margin-left: 3rem; background-color: red; color: white; cursor:pointer;" data-id="${id}">delete</button>
+          </li>`
+          }
+
+          if (event.event?.length > 1) {
+            [event].forEach(ev => {
+              ev.event.map(e => {
+                console.log(e.id)
+                const template = strcture(event.day, event.month, event.year, e.event, e.id);
+                clearEventContainer.insertAdjacentHTML("beforeend", template)
+              })
+            });
+          } else {
+            const template = strcture(event.day, event.month, event.year, event.event[0]?.event, event.event[0].id);
+            clearEventContainer.insertAdjacentHTML("beforeend", template)
+          }
+
           if (!(navMonth === event.month && navYear === event.year)) continue
 
           const day = document.querySelector(`[data-day='${event.day}']`)
@@ -210,6 +307,7 @@ function vd($data) {
           day.insertAdjacentHTML("beforeend", eventTextLoader(day, event.event.length))
           // add the event but hide it for now
           day.insertAdjacentHTML("beforeend", setEventDetails(event.event))
+
         }
       } else {
         // remove clear event button
@@ -255,8 +353,11 @@ function vd($data) {
       return targetScope.closest(element)
     }
 
-    function input(question) {
-      return prompt(question)
+    function input(q) {
+      const p = prompt(q);
+      console.log("PROMPT=>", p)
+      return p;
+
     }
 
     function deleteEl(element) {
@@ -267,10 +368,17 @@ function vd($data) {
       return target.querySelector(".event-content").textContent
     }
 
+    function deleteBtn(parent) {
+      const button = document.createElement("div")
+      button.innerText = "Click me";
+
+      return parent.append(button);
+    }
+
     function inputTemplate(target, dayContent, totalContents) {
       return `
 > ${hasEvents(target) ? `day ${dayContent}: has following ${totalContents.length} events:` : `day ${dayContent}: has no events`}
-${totalContents ? totalContents.map(content=> `   * ${content}.`).join("\n") : ""}
+${totalContents ? totalContents.map(content=> `   * ${content}`).join("\n") : ""}
 > save event on day: ${dayContent}:
         `;
     }
