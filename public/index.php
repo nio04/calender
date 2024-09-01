@@ -34,9 +34,9 @@ function vd($data) {
   <?php endfor ?>
 
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
-    <button style="padding: .5rem 1rem; text-transform: uppercase;cursor:pointer;">prev</button>
+    <button id="prev" style="padding: .5rem 1rem; text-transform: uppercase;cursor:pointer;" data-month="<?= $month ?>" data-year="<?= $year ?>">prev</button>
     <p>Today is: <?= $calenderHeader ?></p>
-    <button style="padding: .5rem 1rem; text-transform: uppercase; cursor:pointer;">next</button>
+    <button id="next" style="padding: .5rem 1rem; text-transform: uppercase; cursor:pointer;" data-month="<?= $month ?>" data-year="<?= $year ?>">next</button>
   </div>
 
   <!-- display week days name -->
@@ -79,6 +79,10 @@ function vd($data) {
 
       const target = check(".day-container");
       const dayContent = target?.querySelector(".day-item").textContent;
+      let month;
+      let year;
+      const prevBtn = document.querySelector("#prev")
+      const nextBtn = document.querySelector("#next")
 
       // for setting an event
       if (check(".day-container")) {
@@ -131,11 +135,22 @@ function vd($data) {
         target.dataset.event = "true";
       }
 
-      // for displaying event
-
       // clear event from local storage
       if (check(".event-clear-container")) {
         ask("you sure want to clear out all events?") && (remove('event-calender') && reload())
+      }
+
+      if (check("#prev")) {
+        month = ev.target.dataset.month
+        year = ev.target.dataset.year
+        console.log(month, year)
+        // window.location.href = "?month=0&year=2024";
+      }
+      if (check("#next")) {
+        month = ev.target.dataset.month
+        year = ev.target.dataset.year
+        console.log(month, year)
+        // window.location.href = "?month=0&year=2024";
       }
     })
 
