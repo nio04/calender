@@ -19,6 +19,8 @@ function vd($data) {
   $month = isset($_GET['month']) ? (int) $_GET['month'] : date('m');
   $year = isset($_GET['year']) ? (int) $_GET['year'] : date('Y');
   $navMonth = date("M", mktime(0, 0, 0, $month, 1, $year));
+  $navMonthDigit = date("n", mktime(0, 0, 0, $month, 1, $year));
+  $navYear = date("Y", mktime(0, 0, 0, $month, 1, $year));
   $firstDayTimestamp = mktime(0, 0, 0, $month, 1, $year);
   $firstDayOfWeek = date('w', $firstDayTimestamp);
 
@@ -36,8 +38,8 @@ function vd($data) {
 
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
     <button id="prev" style="padding: .5rem 1rem; text-transform: uppercase;cursor:pointer;" data-month="<?= $month ?>" data-year="<?= $year ?>">prev</button>
-    <p style="margin-right: auto; margin-left: 2rem;">Today is: <?= $calenderHeader ?></p>
-    <p style="margin-left: auto; margin-right: 2rem;">Month: <?= $navMonth ?>, Year: <?= $year ?></p>
+    <p id="curr_day" style="margin-right: auto; margin-left: 2rem; cursor: pointer;">Today is: <?= $calenderHeader ?></p>
+    <p id="navigate" style="margin-left: auto; margin-right: 2rem;" data-nav-month="<?= $navMonthDigit ?>" data-nav-year="<?= $navYear ?>">Month: <?= $navMonth ?>, Year: <?= $year ?></p>
     <button id="next" style="padding: .5rem 1rem; text-transform: uppercase; cursor:pointer;" data-month="<?= $month ?>" data-year="<?= $year ?>">next</button>
   </div>
 
@@ -99,8 +101,8 @@ function vd($data) {
 
         const event = {
           day: parseInt(dayContent),
-          month: document.querySelector("#prev").dataset.month,
-          year: document.querySelector("#prev").dataset.year,
+          month: parseInt(document.querySelector("#prev").dataset.month),
+          year: parseInt(document.querySelector("#prev").dataset.year),
           event: [eventDescription]
         };
 
@@ -144,6 +146,17 @@ function vd($data) {
         ask("you sure want to clear out all events?") && (remove('event-calender') && reload())
       }
 
+      // make the current date home button
+      if (ev.target.id === "curr_day") {
+        let url = new URL(window.location.href);
+        url.search = ''
+        url.hash = ''
+
+        url = url.toString()
+        window.location.href = url
+      }
+
+      // navigating between months
       if (check("#prev")) {
         month = ev.target.dataset.month
         year = ev.target.dataset.year
@@ -179,8 +192,16 @@ function vd($data) {
 
       // if there are contents on localStorage then modify the daycontainer dataset
       if (eventCollectins.length > 0) {
+        let curr_month = parseInt(document.querySelector("#prev").dataset.month);
+        let curr_year = parseInt(document.querySelector("#prev").dataset.year);
+        let navMonth = parseInt(document.querySelector("#navigate").dataset.navMonth)
+        let navYear = parseInt(document.querySelector("#navigate").dataset.navYear)
+
+        console.log(navMonth, curr_month)
 
         for (const event of eventCollectins) {
+          if (!(navMonth === event.month && navYear === event.year)) continue
+
           const day = document.querySelector(`[data-day='${event.day}']`)
           day.dataset.event = "true";
           day.dataset.hasEvent = "true";
