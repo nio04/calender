@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
   <div style="grid-column: 2 / 10; grid-row: 1 / 2; display: flex; justify-content:space-around; align-items:center;">
     <p style="font-size: 1.4rem; text-transform: capitalize;">slected day is: <?= $eventDay ?>, month: <?= $eventMonth ?>, year:<?= $eventYear ?></p>
-    <a href="/" style="margin-left: auto; font-size: 1.4rem; text-transform: capitalize;">go back to calender</a>
+    <a href="/?month=<?= $eventMonth ?>&year=<?= $eventYear ?>" style="margin-left: auto; font-size: 1.4rem; text-transform: capitalize;">go back to calender</a>
   </div>
 
   <div style="grid-row: 2 / 3; grid-column: 2 / 10;">
