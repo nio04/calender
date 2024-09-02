@@ -1,3 +1,5 @@
+<?php include __DIR__ . "/database.php" ?>
+
 <?php
 
 function vd($data) {
@@ -20,7 +22,7 @@ function vd($data) {
   </style>
 </header>
 
-<body style="padding-left: 1rem; padding-right: 1rem;">
+<body style="padding-left: 1rem; padding-right: 1rem; font-family: Arial, Helvetica, sans-serif;">
   <?php
   $month = isset($_GET['month']) ? (int) $_GET['month'] : date('m');
   $year = isset($_GET['year']) ? (int) $_GET['year'] : date('Y');
@@ -36,6 +38,10 @@ function vd($data) {
   $currentDay = date('j');
   $storeDays = [];
   ?>
+
+  <?php if (isset($_GET['day']) && isset($_GET['month']) && $_GET['year']): ?>
+    <?php header("location: /event.php?day=" . $_GET['day'] . "&month=" . $_GET['month'] . "&year=" . $_GET['year']) ?>
+  <?php endif ?>
 
   <!-- store: loop and store current month days -->
   <?php for ($i = 1; $i <= $maxDay; $i++): ?>
@@ -81,13 +87,15 @@ function vd($data) {
 
   <div style="display: flex; justify-content: space-around; margin-top: 1rem" class="event-clear-container">
     <button style="cursor: pointer; padding: .5rem 1rem; text-transform: capitalize;" class="clear-btn">clear all events</button>
-    <button style="cursor: pointer; padding: .5rem 1rem; text-transform: capitalize;" class="clear-event-btn">clear event</button>
   </div>
 
-  <ul class="show-all-events" style="display: grid; grid-template-columns: repeat(5,1fr); gap: .5rem; padding: 2rem;"></ul>
+  <!-- <ul class="show-all-events" style="display: grid; grid-template-columns: repeat(5,1fr); gap: .5rem; padding: 2rem;"></ul> -->
 
   <script>
     let targetScope;
+    let dayContent;
+    let month;
+    let year;
 
     document.addEventListener("click", function(ev) {
       // if (!(ev.target.closest(".day-container") || ev.target.closest(".event-clear-container"))) return
@@ -95,74 +103,73 @@ function vd($data) {
       targetScope = ev.target
 
       const target = check(".day-container");
-      const dayContent = target?.querySelector(".day-item").textContent;
-      let month;
-      let year;
+      dayContent = parseInt(target?.querySelector(".day-item").textContent);
+      month = parseInt(document.querySelector("#prev").dataset.month)
+      year = parseInt(document.querySelector("#prev").dataset.year);
       const prevBtn = document.querySelector("#prev")
       const nextBtn = document.querySelector("#next")
 
-      console.log(ev)
-
       // for setting an event
       if (check(".day-container")) {
-        const totalContents = hasEvents(target) && getEventContents(target).split(",")
+        window.location.href = `?day=${targetScope.querySelector(".day-item").textContent}&month=${month}&year=${year}`
+        //   const totalContents = hasEvents(target) && getEventContents(target).split(",")
 
-        const contents = inputTemplate(target, dayContent, totalContents);
+        //   const contents = inputTemplate(target, dayContent, totalContents);
 
-        const eventDescription = input(contents);
+        //   const eventDescription = input(contents);
 
-        // if eventDescription is empty then simply return
-        if (eventDescription?.trim().length < 1 || eventDescription == null) return
+        //   // if eventDescription is empty then simply return
+        //   if (eventDescription?.trim().length < 1 || eventDescription == null) return
 
-        const event = {
-          id: (new Date()).getTime(),
-          day: parseInt(dayContent),
-          month: parseInt(document.querySelector("#prev").dataset.month),
-          year: parseInt(document.querySelector("#prev").dataset.year),
-          event: [{
-            id: (new Date()).getTime(),
-            event: eventDescription
-          }]
-        };
+        //   const event = {
+        //     id: (new Date()).getTime(),
+        //     day: parseInt(dayContent),
+        //     month: parseInt(document.querySelector("#prev").dataset.month),
+        //     year: parseInt(document.querySelector("#prev").dataset.year),
+        //     event: [{
+        //       id: (new Date()).getTime(),
+        //       event: eventDescription
+        //     }]
+        //   };
 
-        // before setting item to LS, check if there are existing conetent
-        const datas = get("event-calender");
+        //   // before setting item to LS, check if there are existing conetent
+        //   const datas = get("event-calender");
 
-        if (!datas) {
-          // there were no event data on localStorage
-          // save event to local storage
-          const eventInString = stringify([event]);
+        //   if (!datas) {
+        //     // there were no event data on localStorage
+        //     // save event to local storage
+        //     const eventInString = stringify([event]);
 
-          set("event-calender", eventInString);
+        //     set("event-calender", eventInString);
 
-          reload()
-        } else {
-          // localStorage contain existing data
-          const eventCollectins = parse(datas);
-          let eventExist = false;
+        //     reload()
+        //   } else {
+        //     // localStorage contain existing data
+        //     const eventCollectins = parse(datas);
+        //     let eventExist = false;
 
-          // check if LS have the current date saved already
-          for (const collection of eventCollectins) {
-            if (collection === null) continue
+        //     // check if LS have the current date saved already
+        //     for (const collection of eventCollectins) {
+        //       if (collection === null) continue
 
-            if (collection.day === event.day) {
-              collection.event = [...collection.event, {
-                id: (new Date()).getTime(),
-                event: eventDescription
-              }];
-              eventExist = true;
-            }
-          }
+        //       if (collection.day === event.day) {
+        //         collection.event = [...collection.event, {
+        //           id: (new Date()).getTime(),
+        //           event: eventDescription
+        //         }];
+        //         eventExist = true;
+        //       }
+        //     }
 
-          eventExist || eventCollectins.push(event);
+        //     eventExist || eventCollectins.push(event);
 
-          // set to localStorage
-          set('event-calender', stringify(eventCollectins))
+        //     // set to localStorage
+        //     set('event-calender', stringify(eventCollectins))
 
-          reload()
-        }
+        //     reload()
+        //   }
 
-        target.dataset.event = "true";
+        //   target.dataset.event = "true";
       }
 
       // clear event from local storage
@@ -172,7 +179,7 @@ function vd($data) {
 
       // click single event delete
       if (check(".clear-event-btn")) {
-        document.querySelector(".show-all-events").classList.toggle("hidden")
+        // document.querySelector(".show-all-events").classList.toggle("hidden")
       }
 
       // delete single event
@@ -206,8 +213,6 @@ function vd($data) {
             })
           }
         })
-
-        // console.log(filterEvent[0] === undefined, filterEvent, filterEvent.length)
 
         // set back to ls
         localStorage.setItem("event-calender", filterEvent[0] === undefined ? [] : JSON.stringify(filterEvent))
@@ -255,7 +260,20 @@ function vd($data) {
       }
     })
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", async function() {
+
+      month = parseInt(document.querySelector("#prev").dataset.month)
+      year = parseInt(document.querySelector("#prev").dataset.year);
+      let curr_month = parseInt(document.querySelector("#prev").dataset.month);
+      let curr_year = parseInt(document.querySelector("#prev").dataset.year);
+      let navMonth = parseInt(document.querySelector("#navigate").dataset.navMonth)
+      let navYear = parseInt(document.querySelector("#navigate").dataset.navYear)
+
+      const res = await fetch(`/getAllEvents.php?month=${month}&year=${year}`);
+      const data = await res.json();
+
+
+
       // retrive the localStorage of event-calender 
       const eventCollectins = get("event-calender") ? parse(get("event-calender")) : []
 
@@ -284,18 +302,18 @@ function vd($data) {
           </li>`
           }
 
-          if (event.event?.length > 1) {
-            [event].forEach(ev => {
-              ev.event.map(e => {
-                console.log(e.id)
-                const template = strcture(event.day, event.month, event.year, e.event, e.id);
-                clearEventContainer.insertAdjacentHTML("beforeend", template)
-              })
-            });
-          } else {
-            const template = strcture(event.day, event.month, event.year, event.event[0]?.event, event.event[0].id);
-            clearEventContainer.insertAdjacentHTML("beforeend", template)
-          }
+          // if (event.event?.length > 1) {
+          //   [event].forEach(ev => {
+          //     ev.event.map(e => {
+          //       console.log(e.id)
+          //       const template = strcture(event.day, event.month, event.year, e.event, e.id);
+          //       clearEventContainer.insertAdjacentHTML("beforeend", template)
+          //     })
+          //   });
+          // } else {
+          //   const template = strcture(event.day, event.month, event.year, event.event[0]?.event, event.event[0].id);
+          //   clearEventContainer.insertAdjacentHTML("beforeend", template)
+          // }
 
           if (!(navMonth === event.month && navYear === event.year)) continue
 
