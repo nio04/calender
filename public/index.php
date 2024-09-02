@@ -1,16 +1,5 @@
 <?php include __DIR__ . "/database.php" ?>
 
-<?php
-
-function vd($data) {
-  $trace = debug_backtrace();
-  $caller = $trace[0];
-  echo '<br><br>' . 'File: ' . $caller['file'] . '&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; Line: ' . $caller['line'] . '<br>';
-  echo '<div class="var-dump">' . nl2br(htmlspecialchars(var_export($data, true))) . '</div>';
-}
-
-?>
-
 <html>
 <header>
   <title>calender</title>
@@ -135,41 +124,8 @@ function vd($data) {
       location.reload()
     }
 
-    function stringify(obj) {
-      return JSON.stringify(obj)
-    }
-
-    function parse(strings) {
-      return JSON.parse(strings)
-    }
-
-    function get(item) {
-      return localStorage.getItem(item)
-    }
-
-    function set(key, value) {
-      return localStorage.setItem(key, value);
-    }
-
-    function remove(key) {
-      localStorage.removeItem(key)
-      return true;
-    }
-
-    function show(content) {
-      alert(content)
-    }
-
-    function ask(content) {
-      return confirm(content)
-    }
-
     function check(element) {
       return targetScope.closest(element)
-    }
-
-    function input(q) {
-      return prompt(q);
     }
 
     function redirectToHome() {
@@ -207,14 +163,6 @@ function vd($data) {
       }
 
       window.location.href = `?month=${month}&year=${year}`;
-    }
-
-    function deleteEl(element) {
-      document.querySelector(element).remove()
-    }
-
-    function getEventContents(target) {
-      return target.querySelector(".event-content").textContent
     }
 
     // ev text loader: specify if certain day have an event or not
