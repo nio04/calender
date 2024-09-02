@@ -269,10 +269,17 @@ function vd($data) {
       let navMonth = parseInt(document.querySelector("#navigate").dataset.navMonth)
       let navYear = parseInt(document.querySelector("#navigate").dataset.navYear)
 
-      const res = await fetch(`/getAllEvents.php?month=${month}&year=${year}`);
+      const res = await fetch(`/getAllEvents.php?month=${navMonth}&year=${navYear}`);
       const data = await res.json();
 
+      console.log(data)
 
+      const allDays = [...document.querySelectorAll(".day-item")]
+
+      for (const d of data) {
+        const parent = document.querySelector(`[data-day='${d.day}']`);
+        parent.insertAdjacentHTML("beforeend", eventTextLoader(d.totalEvents))
+      }
 
       // retrive the localStorage of event-calender 
       const eventCollectins = get("event-calender") ? parse(get("event-calender")) : []
@@ -410,7 +417,7 @@ ${totalContents ? totalContents.map(content=> `   * ${content}`).join("\n") : ""
     }
 
     // ev text loader: specify if certain day have an event or not
-    function eventTextLoader(day, count) {
+    function eventTextLoader(count) {
       return `<div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif; background-color: #e4e1e1; border-radius: 1rem; padding: 6px;">ev ${count}</div>`
     }
 

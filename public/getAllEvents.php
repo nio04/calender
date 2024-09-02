@@ -2,7 +2,7 @@
 
 <?php
 
-$allEvents = query($db, "SELECT id, title, day, month, year FROM events WHERE month = :month AND year = :year", ['month' => $_GET['month'], 'year' => $_GET['year']]);
+$allEvents = query($db, "SELECT count(day) as totalEvents, day from events where month = :month and year = :year group by day", ['month' => $_GET['month'], 'year' => $_GET['year']]);
 
 header("content-Type:application/json");
 
