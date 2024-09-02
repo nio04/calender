@@ -89,18 +89,15 @@
       }
 
       // make the current date home button
-      if (ev.target.id === "curr_day") {
+      if (ev.target.id === "curr_day")
         redirectToHome();
-      }
 
       // navigating between months
-      if (check("#prev")) {
+      if (check("#prev"))
         navToPrevMonth(ev)
-      }
 
-      if (check("#next")) {
+      if (check("#next"))
         navToNextMonth(ev)
-      }
     })
 
     document.addEventListener("DOMContentLoaded", async function() {

@@ -6,4 +6,8 @@ $id = isset($_GET['id']) ? $_GET['id'] : "";
 
 query($db, "DELETE from events WHERE id = :id", ['id' => $id]);
 
-header("location:/");
+$day = $_GET['day'];
+$month = $_GET['month'];
+$year = $_GET['year'];
+
+header("location:/?&month=$month&year=$year");

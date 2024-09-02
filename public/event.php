@@ -10,6 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
   $title = htmlspecialchars(trim($title));
 
+  if (empty($title)) {
+    header("location: /event.php?day=$eventDay&month=$eventMonth&year=$eventYear");
+    exit;
+  }
+
   // save to db
   query($db, "INSERT INTO events (title, day, month, year) VALUES (:title, :day, :month, :year)", ['title' => $title, 'day' => (int)$eventDay, 'month' => (int)$eventMonth, 'year' => (int)$eventYear]);
 }
@@ -31,11 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
     <?php if (count($lists) > 0) : ?>
       <p style="font-size: 1.4rem; text-transform: capitalize;">list of events</p>
-      <ul style="display: grid; grid-template-columns: repeat(5, 1fr); gap:1rem; border: 2px dotted blue;  padding: 1.5rem;">
+      <ul style="height: 10rem; overflow-y:scroll; display: grid; grid-template-columns: repeat(auto-fit, minmax(5rem, 20rem)); gap:1rem; border: 2px dotted blue;  padding: 1.5rem;">
         <?php foreach ($lists as $list): ?>
-          <li style="width:10rem; display: flex; border:1px dotted green;">
-            <p style="font-size: 1.2rem; "><?= $list->title ?></p>
-            <a href="/delete.php?id=<?= $list->id ?>" style="margin-left: auto; align-self: center; padding: .4rem .5rem;">delete</a>
+          <li style="display: flex; align-items:center; border:1px dotted green; padding: .6rem 1rem">
+            <p style="font-size: 1.2rem; max-width: 70%; line-break: anywhere;"><?= $list->title ?></p>
+            <a href="/delete.php?id=<?= $list->id ?>&day=<?= $eventDay ?>&month=<?= $eventMonth ?>&year=<?= $eventYear ?>" style="margin-left: auto; align-self: center; padding: .4rem .5rem;">delete</a>
           </li>
         <?php endforeach ?>
       </ul>
