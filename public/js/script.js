@@ -1,119 +1,32 @@
-document.addEventListener("click", function (e) {
-  const showAllBtn = document.getElementById("show-all-btn");
+import { autoLoadEvents } from "./practsies/practise1.js";
+import { handleFormInput, removeErrorMsg, renderErrors, submitToServer, validateData } from "./practsies/practise2.js";
 
-  if (e.target.id === "show-all-btn") {
-    async function getAllNames() {
-      const res = await fetch("/fetch-all");
-      const data = await res.json();
-
-      const { success, data: names } = data.data;
-
-      console.log(success);
-
-      if (success) {
-        hideSpinner();
-
-        render("#greeting-response", names.map((name) => name.name).join(", "));
-      } else {
-        hideSpinner();
-        render("#greeting-response", names);
-      }
-    }
-
-    try {
-      getAllNames();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      showSpinner();
-    }
+document.addEventListener("DOMContentLoaded", async function (e) {
+   if (window.location.pathname === "/practise-1") {
+    await autoLoadEvents("/p1-getAllEvents");
   }
 });
 
-document.addEventListener("submit", async function (e) {
-  e.preventDefault();
+document.addEventListener("click", async function (ev) {
+})
 
-  const name = document.getElementById("name").value.trim();
+document.addEventListener("submit", function (ev) {
+  ev.preventDefault()
+  const formData = handleFormInput(ev);
+  
+  const validate = validateData(formData);
 
-  const validateForm = validate(name);
+  if (Array.isArray(validate)) {
+    // there are no errors
+    removeErrorMsg()
 
-  if (validateForm.length > 0) {
-    validateForm.forEach((err) => render("#error", err));
-    return;
+    submitToServer(formData)
+    
+  } else {
+    // there is errors
+    removeErrorMsg()
+    renderErrors(validate);
+    return
   }
 
-  const formData = new FormData(document.querySelector("form"));
-
-  try {
-    showSpinner();
-
-    const fetching = await fetchData("/form-submit", formData);
-
-    const { success, data } = fetching.data;
-
-    if (!success) {
-      data.forEach((data) => {
-        render("#error", data);
-      });
-      return;
-    }
-
-    render("#greeting-response", data);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    hideSpinner();
-  }
-});
-
-/**
- * fetch data from php
- * @param route uri to activate router
- * @param data fetch data instruction
- *
- * @returns
- */
-async function fetchData(route, fetchData = []) {
-  try {
-    const res = await fetch(route, {
-      method: "POST",
-      body: fetchData,
-    });
-    const data = await res.json();
-
-    return data;
-  } catch (error) {
-    console.error(`err: ${error}`);
-  }
-}
-
-/**
- *
- * @param {string} parent querySelector to select the parent
- * @param {*} data data to rnder within parent
- */
-function render(parent, data, clearParent = true) {
-  document.querySelector(parent).innerHTML = "";
-  if (clearParent) document.querySelector("#name").value = "";
-
-  document
-    .querySelector(parent)
-    .insertAdjacentHTML("beforeend", `<p class="font-xl">${data}</p>`);
-}
-
-function validate(name) {
-  const errors = [];
-
-  if (!name) {
-    errors.push("name can not be empty");
-  }
-
-  return errors.length > 0 ? errors : [];
-}
-
-function showSpinner() {
-  document.querySelector("#loading-spinner").classList.remove("hidden");
-}
-function hideSpinner() {
-  document.querySelector("#loading-spinner").classList.add("hidden");
-}
+})

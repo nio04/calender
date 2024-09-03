@@ -2,6 +2,7 @@
 
 namespace Framework;
 
+use App\Controllers\EventController;
 use App\Controllers\FormController;
 use App\Controllers\HomeController;
 use App\Controllers\NamesController;
@@ -46,15 +47,25 @@ class Router {
       'action' => 'index',
       'httpMethod' => 'get'
     ];
-    $this->routes['/form-submit'] = [
-      'controller' => FormController::class,
-      'action' => 'getFormData',
-      'httpMethod' => 'post'
-    ];
-    $this->routes['/fetch-all'] = [
-      'controller' => NamesController::class,
-      'action' => 'getAllNames',
+    $this->routes['/practise-1'] = [
+      'controller' => EventController::class,
+      'action' => 'view1',
       'httpMethod' => 'get'
+    ];
+    $this->routes['/p1-getAllEvents'] = [
+      'controller' => EventController::class,
+      'action' => 'getAllEvents',
+      'httpMethod' => 'get'
+    ];
+    $this->routes['/practise-2'] = [
+      'controller' => EventController::class,
+      'action' => 'view2',
+      'httpMethod' => 'get'
+    ];
+    $this->routes['/p2-submit-form'] = [
+      'controller' => EventController::class,
+      'action' => 'handleP2',
+      'httpMethod' => 'post'
     ];
   }
 

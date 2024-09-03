@@ -2,15 +2,15 @@
     "name": "admin/calender",
     "autoload": {
         "psr-4": {
-            "App\\Controllers\\": "src/app/controllers/",
+            "App\\Controllers\\": "src/app/Controllers/",
             "App\\Core\\": "src/app/core/",
-            "Framework\\": "Framework/",
-            "App\\Traits\\": "src/app/traits/"
+            "App\\Traits\\": "src/App/traits/",
+            "Framework\\": "Framework/"
         }
     },
     "authors": [
         {
-            "name": "nishat islam",
+            "name": "nio04",
             "email": "nishatislam3108@gmail.com"
         }
     ],

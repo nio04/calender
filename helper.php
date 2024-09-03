@@ -5,6 +5,10 @@ function loadPartials($file, $data = []) {
   include __DIR__ . "/partials/" . $file . ".php";
 }
 
+function loadFile($filePath) {
+  include __DIR__ . "/" . $filePath . ".php";
+}
+
 function vd($data) {
   $trace = debug_backtrace();
   $caller = $trace[0];
