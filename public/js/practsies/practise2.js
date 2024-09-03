@@ -43,14 +43,14 @@ export async function submitToServer(formData) {
         'Content-type': 'application/json',
       },
       body: JSON.stringify(formData)
-      
     });
     const data = await res.json();
+
     if (data.success) {
-      alert(`data saved on database success. id: ${data.id}`)
+      alert(`data saved on database success. id: ${data.id}`);
+      clearInput(['[name=first_name]', '[name=last_name]', '[name=age]', '[name=about]', '[name=hobby]'])
     } else {
       const errors = {};
-
       for (const key in data.data) {
         errors[key] = data.data[key]
       }
@@ -59,7 +59,6 @@ export async function submitToServer(formData) {
     }
   } catch (error) {
     console.error(error);
-    
   }
 }
 
@@ -72,4 +71,14 @@ export function renderErrors(errors) {
 
 export function removeErrorMsg() {
   [...document.querySelectorAll(".error-msg")].forEach(msg=>msg.remove())
+}
+
+function clearInput(elements) {
+  elements.forEach(element => {
+    if (element==='[name=hobby]') {
+      [...document.querySelectorAll(element)].forEach(el=>el.checked=false)
+    } else {
+      document.querySelector(element).value = ""
+    }
+  })
 }
